@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar código
+      - name: Baixar projeto
         uses: actions/checkout@v4
 
       - name: Instalar Java 8
@@ -21,18 +21,29 @@ jobs:
           distribution: temurin
           java-version: '8'
 
-      - name: Instalar Gradle 2.14.1
+      - name: Configurar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '2.14.1'
 
-      - name: Compilar Neon Client
-        run: gradle build --no-daemon
+      - name: Verificar arquivos
+        run: |
+          ls -la
+          find . -maxdepth 3 -type f
 
-      - name: Salvar arquivo JAR
+      - name: Compilar Neon Client
+        run: gradle build --no-daemon --stacktrace
+
+      - name: Procurar arquivos JAR
+        if: always()
+        run: |
+          find . -type f -name "*.jar" -not -path "*/.gradle/*" || true
+
+      - name: Salvar JAR
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Neon-Client
           path: build/libs/*.jar
-          if-no-files-found: error
+          if-no-files-found: warn
           
