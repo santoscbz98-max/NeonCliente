@@ -4,7 +4,8 @@ name: Compilar Neon Client
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -20,14 +21,18 @@ jobs:
           distribution: temurin
           java-version: '8'
 
-      - name: Compilar client
-        run: |
-          chmod +x gradlew || true
-          gradle build --no-daemon
+      - name: Instalar Gradle 2.14.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '2.14.1'
 
-      - name: Guardar arquivo JAR
+      - name: Compilar Neon Client
+        run: gradle build --no-daemon
+
+      - name: Salvar arquivo JAR
         uses: actions/upload-artifact@v4
         with:
           name: Neon-Client
           path: build/libs/*.jar
+          if-no-files-found: error
           
